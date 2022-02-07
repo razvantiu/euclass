@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"runtime"
 	"syscall"
 )
 
@@ -14,6 +15,8 @@ func main() {
 	l := log.New(os.Stdout, "TEST", log.Lshortfile|log.Ldate|log.Ltime)
 
 	l.Println("Starting Service")
+	l.Println("GOMAXPROCS:", runtime.GOMAXPROCS(0))
+
 	defer l.Println("Stopped Service")
 
 	shutdown := make(chan os.Signal, 1)
