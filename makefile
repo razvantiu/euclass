@@ -60,6 +60,8 @@ kind-status:
 	kubectl get svc -o wide
 	kubectl get pods -o wide --watch --all-namespaces
 
+kind-describe-deployment:
+	kubectl describe deployment sales-pod
 
 # ==============================================================================
 # Local
