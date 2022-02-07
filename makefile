@@ -43,7 +43,7 @@ kind-apply:
 	kustomize build zarf/k8s/base/sales-pod | kubectl apply -f -
 
 kind-logs-sales:
-	kubectl logs -l app=sales --all-containers=true -f --tail=100 | go run app/tooling/logfmt/main.go -service=SALES-API
+	kubectl logs -l app=sales --all-containers=true -f --tail=100
 
 kind-status-sales:
 	kubectl get pods -o wide --watch --namespace=sales-system
