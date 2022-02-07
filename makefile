@@ -32,6 +32,9 @@ kind-up:
 		--image kindest/node:v1.23.0@sha256:49824ab1727c04e56a21a5d8372a402fcd32ea51ac96a2706a12af38934f81ac \
 		--name $(KIND_CLUSTER)
 
+kind-down:
+	kind delete cluster --name $(KIND_CLUSTER)
+
 kind-status:
 	kubectl get nodes -o wide
 	kubectl get svc -o wide
