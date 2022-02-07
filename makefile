@@ -63,6 +63,14 @@ kind-status:
 kind-describe-deployment:
 	kubectl describe deployment sales-pod
 
+
+# ==============================================================================
+# Modules support
+
+tidy:
+	go mod tidy
+	go mod vendor
+
 # ==============================================================================
 # Local
 
