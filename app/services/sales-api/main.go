@@ -7,6 +7,9 @@ import (
 	"syscall"
 )
 
+// build is the git version of this program. It is set using build flags in the makefile.
+var build = "develop"
+
 func main() {
 	l := log.New(os.Stdout, "TEST", log.Lshortfile|log.Ldate|log.Ltime)
 

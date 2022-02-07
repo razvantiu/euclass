@@ -1,0 +1,7 @@
+.git/
+.dockerignore
+.gitignore
+zarf/docker/
+LICENSE
+makefile
+README.md
