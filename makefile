@@ -40,7 +40,7 @@ kind-load:
 	kind load docker-image sales-api-amd64:$(VERSION) --name $(KIND_CLUSTER)
 
 kind-apply:
-	kustomize build zarf/k8s/base/sales-pod | kubectl apply -f -
+	kustomize build zarf/k8s/kind/sales-pod | kubectl apply -f -
 
 kind-restart:
 	kubectl rollout restart deployment sales-pod
