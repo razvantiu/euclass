@@ -42,6 +42,9 @@ kind-load:
 kind-apply:
 	kustomize build zarf/k8s/base/sales-pod | kubectl apply -f -
 
+kind-restart:
+	kubectl rollout restart deployment sales-pod
+
 kind-logs-sales:
 	kubectl logs -l app=sales --all-containers=true -f --tail=100
 
