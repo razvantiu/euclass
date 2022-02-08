@@ -3,6 +3,10 @@ SHELL := /bin/bash
 # Access metrics directly (4000) or through the sidecar (3001)
 # go install github.com/divan/expvarmon@latest
 # expvarmon -ports=":4000" -vars="build,requests,goroutines,errors,panics,mem:memstats.Alloc"
+#
+# Test some routes
+# curl -il http://localhost:3000/test
+#
 
 # ==============================================================================
 # Building containers
