@@ -5,6 +5,7 @@ import (
 	"expvar"
 	"net/http"
 	"net/http/pprof"
+	"os"
 
 	"github.com/ardanlabs/service/app/services/sales-api/handlers/testgrp"
 	"github.com/ardanlabs/service/business/web/mid"
@@ -13,8 +14,8 @@ import (
 )
 
 // APIMux constructs a http.Handler with all application routes defined.
-func APIMux(log *zap.SugaredLogger) *web.App {
-	app := web.NewApp(mid.Logger(log))
+func APIMux(shutdown chan os.Signal, log *zap.SugaredLogger) *web.App {
+	app := web.NewApp(shutdown, mid.Logger(log))
 
 	app.Handle(http.MethodGet, "/test", testgrp.Handler)
 
