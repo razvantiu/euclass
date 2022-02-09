@@ -27,7 +27,7 @@ func Error(log *zap.SugaredLogger) web.Middleware {
 			if err := handler(ctx, w, r); err != nil {
 
 				// Log the error.
-				log.Errorw("ERROR", "traceid", v.TraceID, "msg", err)
+				log.Errorw("ERROR", "traceid", v.TraceID, "message", err)
 
 				// Build out the error response.
 				var er trusted.ErrorResponse
