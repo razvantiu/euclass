@@ -1,4 +1,4 @@
-package trusterr
+package trusted
 
 import "errors"
 

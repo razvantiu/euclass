@@ -3,15 +3,24 @@ package testgrp
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
+	"math/rand"
 	"net/http"
+
+	"github.com/ardanlabs/service/business/web/trusted"
+	"github.com/ardanlabs/service/foundation/web"
 )
 
 func Handler(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	if n := rand.Int31n(100); n%2 == 0 {
+		return trusted.NewRequestError(errors.New("TRUST ME"), http.StatusBadRequest)
+	}
+
 	status := struct {
 		Status string
 	}{
 		Status: "OK",
 	}
-	return json.NewEncoder(w).Encode(status)
+
+	return web.Respond(ctx, w, status, http.StatusOK)
 }
