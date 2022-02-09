@@ -13,6 +13,15 @@ SHELL := /bin/bash
 #
 
 # ==============================================================================
+# Install dependencies
+
+dev.setup.mac:
+	brew update
+	brew list kind || brew install kind
+	brew list kustomize || brew install kustomize
+
+
+# ==============================================================================
 # Building containers
 
 # $(shell git rev-parse --short HEAD)
