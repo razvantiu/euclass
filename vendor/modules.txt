@@ -9,6 +9,9 @@ github.com/dimfeld/httptreemux/v5
 github.com/emadolsky/automaxprocs/internal/cgroups
 github.com/emadolsky/automaxprocs/internal/runtime
 github.com/emadolsky/automaxprocs/maxprocs
+# github.com/golang-jwt/jwt/v4 v4.3.0
+## explicit; go 1.15
+github.com/golang-jwt/jwt/v4
 # github.com/google/uuid v1.3.0
 ## explicit
 github.com/google/uuid
