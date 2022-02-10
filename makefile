@@ -17,15 +17,6 @@ SHELL := /bin/bash
 #
 
 # ==============================================================================
-# Install dependencies
-
-dev.setup.mac:
-	brew update
-	brew list kind || brew install kind
-	brew list kustomize || brew install kustomize
-
-
-# ==============================================================================
 # Building containers
 
 # $(shell git rev-parse --short HEAD)
@@ -100,6 +91,9 @@ tidy:
 # ==============================================================================
 # Local
 
+admin:
+	go run app/tooling/admin/main.go
+
 run:
 	go run app/services/sales-api/main.go | go run app/tooling/logfmt/main.go
 
@@ -108,3 +102,12 @@ help:
 
 version:
 	go run app/services/sales-api/main.go --version
+
+# ==============================================================================
+# Install dependencies
+
+dev.setup.mac:
+	brew update
+	brew list kind || brew install kind
+	brew list kustomize || brew install kustomize
+
