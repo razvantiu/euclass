@@ -111,6 +111,8 @@ func gentoken() error {
 	fmt.Println("TOKEN VALIDATED")
 	fmt.Printf("%#v\n", xclaims)
 
+	// Maybe now hit the database for the user id and validate more!!!
+
 	return nil
 }
 
