@@ -19,7 +19,7 @@ func APIMux(shutdown chan os.Signal, log *zap.SugaredLogger, a *auth.Auth) *web.
 	app := web.NewApp(shutdown, mid.Logger(log), mid.Error(log), mid.Metrics(), mid.Panics())
 
 	app.Handle(http.MethodGet, "/test", testgrp.Handler)
-	app.Handle(http.MethodGet, "/testauth", testgrp.Handler, mid.Authenticate(a*auth.Auth), mid.Authorize(auth.RoleAdmin))
+	app.Handle(http.MethodGet, "/testauth", testgrp.Handler, mid.Authenticate(a), mid.Authorize(auth.RoleAdmin))
 
 	return app
 }
