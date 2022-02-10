@@ -19,6 +19,9 @@ SHELL := /bin/bash
 # Liveness and Readiness
 # curl -il http://localhost:4000/debug/liveness
 # curl -il http://localhost:4000/debug/readiness
+#
+# Running pgcli client for database.
+# pgcli postgresql://postgres:postgres@localhost
 
 # ==============================================================================
 # Building containers
@@ -130,4 +133,4 @@ dev.setup.mac:
 	brew update
 	brew list kind || brew install kind
 	brew list kustomize || brew install kustomize
-
+	brew list pgcli || brew install pgcli
