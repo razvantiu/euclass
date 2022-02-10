@@ -11,6 +11,10 @@ SHELL := /bin/bash
 # go install github.com/rakyll/hey@latest
 # hey -m GET -c 100 -n 10000 -H "Authorization: Bearer ${TOKEN}" http://localhost:3000/test
 #
+# To generate a private/public key PEM file.
+# openssl genpkey -algorithm RSA -out private.pem -pkeyopt rsa_keygen_bits:2048
+# openssl rsa -pubout -in private.pem -out public.pem
+#
 
 # ==============================================================================
 # Install dependencies
