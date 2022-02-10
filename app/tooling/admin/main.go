@@ -53,6 +53,7 @@ func gentoken() error {
 	}
 
 	token := jwt.NewWithClaims(method, claims)
+	token.Header["kid"] = "123123-235345-456-456"
 
 	// Generate a new private key.
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
@@ -60,11 +61,11 @@ func gentoken() error {
 		return err
 	}
 
-	str, err := token.SignedString(privateKey)
+	tokenStr, err := token.SignedString(privateKey)
 	if err != nil {
 		return fmt.Errorf("signing token: %w", err)
 	}
-	fmt.Printf("-----BEGIN TOKEN-----\n%s\n-----END TOKEN-----\n", str)
+	fmt.Printf("-----BEGIN TOKEN-----\n%s\n-----END TOKEN-----\n", tokenStr)
 
 	// =========================================================================
 
@@ -84,6 +85,31 @@ func gentoken() error {
 	if err := pem.Encode(os.Stdout, &publicBlock); err != nil {
 		return fmt.Errorf("encoding to public file: %w", err)
 	}
+
+	// =========================================================================
+
+	parser := jwt.NewParser(jwt.WithValidMethods([]string{"RS256"}))
+
+	keyFunc := func(t *jwt.Token) (interface{}, error) {
+		kid := t.Header["kid"]
+		kidID := kid.(string)
+		fmt.Println("KID", kidID)
+
+		return &privateKey.PublicKey, nil
+	}
+
+	var xclaims Claims
+	xtoken, err := parser.ParseWithClaims(tokenStr, &xclaims, keyFunc)
+	if err != nil {
+		return fmt.Errorf("parsing token: %w", err)
+	}
+
+	if !xtoken.Valid {
+		return errors.New("invalid token")
+	}
+
+	fmt.Println("TOKEN VALIDATED")
+	fmt.Printf("%#v\n", xclaims)
 
 	return nil
 }
