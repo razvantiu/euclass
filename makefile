@@ -16,6 +16,9 @@ SHELL := /bin/bash
 # openssl genpkey -algorithm RSA -out private.pem -pkeyopt rsa_keygen_bits:2048
 # openssl rsa -pubout -in private.pem -out public.pem
 #
+# Liveness and Readiness
+# curl -il http://localhost:4000/debug/liveness
+# curl -il http://localhost:4000/debug/readiness
 
 # ==============================================================================
 # Building containers
