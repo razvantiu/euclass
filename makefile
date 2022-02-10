@@ -6,6 +6,7 @@ SHELL := /bin/bash
 #
 # Test some routes
 # curl -il http://localhost:3000/test
+# curl -il -H "Authorization: Bearer ${TOKEN}" http://localhost:3000/testauth
 #
 # For testing load on the service.
 # go install github.com/rakyll/hey@latest

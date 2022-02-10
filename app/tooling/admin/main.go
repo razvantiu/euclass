@@ -11,15 +11,53 @@ import (
 	"os"
 	"time"
 
+	"github.com/ardanlabs/service/business/sys/auth"
+	"github.com/ardanlabs/service/foundation/keystore"
 	"github.com/golang-jwt/jwt/v4"
 )
 
 func main() {
-	err := gentoken()
+	err := gentoken2()
 
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func gentoken2() error {
+
+	// Construct a key store based on the key files stored in
+	// the specified directory.
+	keysFolder := "zarf/keys/"
+	ks, err := keystore.NewFS(os.DirFS(keysFolder))
+	if err != nil {
+		return fmt.Errorf("reading keys: %w", err)
+	}
+
+	// Init the auth package.
+	activeKID := "54bb2165-71e1-41a6-af3e-7da4a0e1e2c1"
+	a, err := auth.New(activeKID, ks)
+	if err != nil {
+		return fmt.Errorf("constructing auth: %w", err)
+	}
+
+	claims := auth.Claims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject:   "123456789",
+			Issuer:    "service project",
+			ExpiresAt: jwt.NewNumericDate(time.Now().UTC().Add(8760 * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
+		},
+		Roles: []string{auth.RoleAdmin},
+	}
+
+	token, err := a.GenerateToken(claims)
+	if err != nil {
+		return fmt.Errorf("generating token: %w", err)
+	}
+
+	fmt.Printf("-----BEGIN TOKEN-----\n%s\n-----END TOKEN-----\n", token)
+	return nil
 }
 
 func gentoken() error {
