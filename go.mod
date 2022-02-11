@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/ardanlabs/conf/v3 v3.1.1
+	github.com/ardanlabs/darwin v1.3.0
 	github.com/dimfeld/httptreemux/v5 v5.4.0
 	github.com/emadolsky/automaxprocs v1.4.1-0.20220104203543-349281033d17
 	github.com/golang-jwt/jwt/v4 v4.3.0
