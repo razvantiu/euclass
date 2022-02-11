@@ -22,6 +22,15 @@ SHELL := /bin/bash
 #
 # Running pgcli client for database.
 # pgcli postgresql://postgres:postgres@localhost
+#
+# For testing a simple query on the system. Don't forget to `make seed` first.
+# curl --user "admin@example.com:gophers" http://localhost:3000/v1/users/token
+# export TOKEN="COPY TOKEN STRING FROM LAST CALL"
+# curl -H "Authorization: Bearer ${TOKEN}" http://localhost:3000/v1/users/1/2
+#
+# For testing load on the service.
+# go install github.com/rakyll/hey@latest
+# hey -m GET -c 100 -n 10000 -H "Authorization: Bearer ${TOKEN}" http://localhost:3000/v1/users/1/2
 
 # ==============================================================================
 # Building containers
