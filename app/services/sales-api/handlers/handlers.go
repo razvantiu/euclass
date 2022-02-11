@@ -9,6 +9,8 @@ import (
 
 	"github.com/ardanlabs/service/app/services/sales-api/handlers/debug/checkgrp"
 	"github.com/ardanlabs/service/app/services/sales-api/handlers/testgrp"
+	"github.com/ardanlabs/service/app/services/sales-api/handlers/usergrp"
+	"github.com/ardanlabs/service/business/core/user"
 	"github.com/ardanlabs/service/business/sys/auth"
 	"github.com/ardanlabs/service/business/web/mid"
 	"github.com/ardanlabs/service/foundation/web"
@@ -17,11 +19,26 @@ import (
 )
 
 // APIMux constructs a http.Handler with all application routes defined.
-func APIMux(shutdown chan os.Signal, log *zap.SugaredLogger, a *auth.Auth) *web.App {
+func APIMux(shutdown chan os.Signal, log *zap.SugaredLogger, a *auth.Auth, db *sqlx.DB) *web.App {
 	app := web.NewApp(shutdown, mid.Logger(log), mid.Error(log), mid.Metrics(), mid.Panics())
 
 	app.Handle(http.MethodGet, "/test", testgrp.Handler)
 	app.Handle(http.MethodGet, "/testauth", testgrp.Handler, mid.Authenticate(a), mid.Authorize(auth.RoleAdmin))
+
+	authen := mid.Authenticate(a)
+	admin := mid.Authorize(auth.RoleAdmin)
+
+	// Register user management and authentication endpoints.
+	ugh := usergrp.Handlers{
+		User: user.NewCore(log, db),
+		Auth: a,
+	}
+	app.Handle(http.MethodGet, "/users/token", ugh.Token)
+	app.Handle(http.MethodGet, "/users/:page/:rows", ugh.Query, authen, admin)
+	app.Handle(http.MethodGet, "/users/:id", ugh.QueryByID, authen)
+	app.Handle(http.MethodPost, "/users", ugh.Create, authen, admin)
+	app.Handle(http.MethodPut, "/users/:id", ugh.Update, authen, admin)
+	app.Handle(http.MethodDelete, "/users/:id", ugh.Delete, authen, admin)
 
 	return app
 }
