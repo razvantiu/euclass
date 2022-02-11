@@ -3,11 +3,28 @@ package database
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net/url"
+	"reflect"
+	"strings"
 	"time"
 
+	"github.com/ardanlabs/service/foundation/web"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 	_ "github.com/lib/pq" // Calls init function.
+	"go.uber.org/zap"
+)
+
+// lib/pq errorCodeNames
+// https://github.com/lib/pq/blob/master/error.go#L178
+const uniqueViolation = "23505"
+
+// Set of error variables for CRUD operations.
+var (
+	ErrDBNotFound        = errors.New("not found")
+	ErrDBDuplicatedEntry = errors.New("duplicated entry")
 )
 
 // Config is the required properties to use the database.
@@ -77,4 +94,100 @@ func StatusCheck(ctx context.Context, db *sqlx.DB) error {
 	const q = `SELECT true`
 	var tmp bool
 	return db.QueryRowContext(ctx, q).Scan(&tmp)
+}
+
+// NamedExecContext is a helper function to execute a CUD operation with
+// logging and tracing.
+func NamedExecContext(ctx context.Context, log *zap.SugaredLogger, db *sqlx.DB, query string, data interface{}) error {
+	q := queryString(query, data)
+	log.Infow("database.NamedExecContext", "traceid", web.GetTraceID(ctx), "query", q)
+
+	if _, err := sqlx.NamedExecContext(ctx, db, query, data); err != nil {
+
+		// Checks if the error is of code 23505 (unique_violation).
+		if pqerr, ok := err.(*pq.Error); ok && pqerr.Code == uniqueViolation {
+			return ErrDBDuplicatedEntry
+		}
+		return err
+	}
+
+	return nil
+}
+
+// NamedQuerySlice is a helper function for executing queries that return a
+// collection of data to be unmarshalled into a slice.
+func NamedQuerySlice(ctx context.Context, log *zap.SugaredLogger, db sqlx.ExtContext, query string, data interface{}, dest interface{}) error {
+	q := queryString(query, data)
+	log.Infow("database.NamedQuerySlice", "traceid", web.GetTraceID(ctx), "query", q)
+
+	val := reflect.ValueOf(dest)
+	if val.Kind() != reflect.Ptr || val.Elem().Kind() != reflect.Slice {
+		return errors.New("must provide a pointer to a slice")
+	}
+
+	rows, err := sqlx.NamedQueryContext(ctx, db, query, data)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	slice := val.Elem()
+	for rows.Next() {
+		v := reflect.New(slice.Type().Elem())
+		if err := rows.StructScan(v.Interface()); err != nil {
+			return err
+		}
+		slice.Set(reflect.Append(slice, v.Elem()))
+	}
+
+	return nil
+}
+
+// NamedQueryStruct is a helper function for executing queries that return a
+// single value to be unmarshalled into a struct type.
+func NamedQueryStruct(ctx context.Context, log *zap.SugaredLogger, db sqlx.ExtContext, query string, data interface{}, dest interface{}) error {
+	q := queryString(query, data)
+	log.Infow("database.NamedQueryStruct", "traceid", web.GetTraceID(ctx), "query", q)
+
+	rows, err := sqlx.NamedQueryContext(ctx, db, query, data)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		return ErrDBNotFound
+	}
+
+	if err := rows.StructScan(dest); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// queryString provides a pretty print version of the query and parameters.
+func queryString(query string, args ...interface{}) string {
+	query, params, err := sqlx.Named(query, args)
+	if err != nil {
+		return err.Error()
+	}
+
+	for _, param := range params {
+		var value string
+		switch v := param.(type) {
+		case string:
+			value = fmt.Sprintf("%q", v)
+		case []byte:
+			value = fmt.Sprintf("%q", string(v))
+		default:
+			value = fmt.Sprintf("%v", v)
+		}
+		query = strings.Replace(query, "?", value, 1)
+	}
+
+	query = strings.ReplaceAll(query, "\t", "")
+	query = strings.ReplaceAll(query, "\n", " ")
+
+	return strings.Trim(query, " ")
 }
