@@ -16,6 +16,14 @@ type Store struct {
 	db  *sqlx.DB
 }
 
+// NewStore constructs a data for api access.
+func NewStore(log *zap.SugaredLogger, db *sqlx.DB) Store {
+	return Store{
+		log: log,
+		db:  db,
+	}
+}
+
 // Create inserts a new user into the database.
 func (s Store) Create(ctx context.Context, usr User) error {
 	const q = `

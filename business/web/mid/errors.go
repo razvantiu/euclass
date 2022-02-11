@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/ardanlabs/service/business/sys/validate"
 	"github.com/ardanlabs/service/business/web/trusted"
 	"github.com/ardanlabs/service/foundation/web"
 	"go.uber.org/zap"
@@ -33,6 +34,14 @@ func Error(log *zap.SugaredLogger) web.Middleware {
 				var er trusted.ErrorResponse
 				var status int
 				switch {
+				case validate.IsFieldErrors(err):
+					fieldErrors := validate.GetFieldErrors(err)
+					er = trusted.ErrorResponse{
+						Error:  "data validation error",
+						Fields: fieldErrors.Fields(),
+					}
+					status = http.StatusBadRequest
+
 				case trusted.IsRequestError(err):
 					reqErr := trusted.GetRequestError(err)
 					er = trusted.ErrorResponse{
